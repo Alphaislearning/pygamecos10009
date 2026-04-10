@@ -47,21 +47,56 @@ def draw_level(screen, level, font_ui, WIDTH):
     screen.blit(level_txt, (20, 20))
 
 
+def _draw_pixel_heart(screen, x, y, scale, filled):
+    """Draw a pixel-style heart similar to the provided reference image."""
+    heart_map = [
+        "..BBBB..BBBB..",
+        ".BRRRRBBRRRRB.",
+        "BRRWWRRRRRRRRB",
+        "BRRWWRRRRRRRRB",
+        ".BRRRRRRRRRRB.",
+        "..BRRRRRRRRB..",
+        "...BRRRRRRB...",
+        "....BRRRRB....",
+        ".....BRRB.....",
+        "......BB......",
+    ]
+
+    if filled:
+        color_map = {
+            "B": (5, 10, 20),
+            "R": (200, 20, 50),
+            "W": (245, 245, 245),
+        }
+    else:
+        color_map = {
+            "B": (70, 70, 70),
+            "R": (120, 120, 120),
+            "W": (190, 190, 190),
+        }
+
+    for row_idx, row in enumerate(heart_map):
+        for col_idx, cell in enumerate(row):
+            if cell == ".":
+                continue
+            color = color_map[cell]
+            rect = pygame.Rect(x + col_idx * scale, y + row_idx * scale, scale, scale)
+            pygame.draw.rect(screen, color, rect)
+
+
 def draw_hearts(screen, lives):
     """Draw 3 hearts to represent player lives."""
     max_lives = 3
-    start_x = WIDTH - 110
-    y = 22
+    scale = 2
+    heart_w = 14 * scale
+    spacing = 6
+    start_x = WIDTH - (heart_w * max_lives + spacing * (max_lives - 1)) - 14
+    y = 14
 
     for i in range(max_lives):
-        x = start_x + i * 34
+        x = start_x + i * (heart_w + spacing)
         filled = i < lives
-        color = (220, 40, 60) if filled else (120, 120, 120)
-
-        # Heart shape from two circles + one triangle
-        pygame.draw.circle(screen, color, (x + 8, y), 7)
-        pygame.draw.circle(screen, color, (x + 20, y), 7)
-        pygame.draw.polygon(screen, color, [(x + 1, y + 3), (x + 27, y + 3), (x + 14, y + 24)])
+        _draw_pixel_heart(screen, x, y, scale, filled)
 
 
 def draw_menu(screen, ui_state, bg_img, road_img, player, WIDTH, HEIGHT):
