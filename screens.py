@@ -47,6 +47,23 @@ def draw_level(screen, level, font_ui, WIDTH):
     screen.blit(level_txt, (20, 20))
 
 
+def draw_hearts(screen, lives):
+    """Draw 3 hearts to represent player lives."""
+    max_lives = 3
+    start_x = WIDTH - 110
+    y = 22
+
+    for i in range(max_lives):
+        x = start_x + i * 34
+        filled = i < lives
+        color = (220, 40, 60) if filled else (120, 120, 120)
+
+        # Heart shape from two circles + one triangle
+        pygame.draw.circle(screen, color, (x + 8, y), 7)
+        pygame.draw.circle(screen, color, (x + 20, y), 7)
+        pygame.draw.polygon(screen, color, [(x + 1, y + 3), (x + 27, y + 3), (x + 14, y + 24)])
+
+
 def draw_menu(screen, ui_state, bg_img, road_img, player, WIDTH, HEIGHT):
     """Draw main menu screen"""
     screen.blit(bg_img, (0, 0))

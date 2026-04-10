@@ -22,6 +22,8 @@ class Game:
         self.score = 0
         self.speed = SPEED_START
         self.level = 1  # Current level
+        self.lives = START_LIVES
+        self.hit_cooldown = 0
         
         # Scrolling backgrounds
         self.mountain_x = 0
@@ -66,6 +68,8 @@ class Game:
         self.speed = SPEED_START
         self.spawn_timer = 0
         self.level = 1
+        self.lives = START_LIVES
+        self.hit_cooldown = 0
         self.player.reset()
         self.mountain_x = 0
         self.road_x = 0
@@ -100,6 +104,9 @@ class Game:
         
         # Update level
         self.update_level()
+
+        if self.hit_cooldown > 0:
+            self.hit_cooldown -= 1
         
         # Update player
         self.player.update(
@@ -131,8 +138,15 @@ class Game:
         # Update obstacles and check collision
         for ob in self.obstacles[:]:
             ob.update()
-            if self.player.mask.overlap(ob.mask, (ob.rect.x - self.player.rect.x, ob.rect.y - self.player.rect.y)):
-                self.state = GameState.GAME_OVER
+            if self.hit_cooldown == 0 and self.player.mask.overlap(
+                ob.mask, (ob.rect.x - self.player.rect.x, ob.rect.y - self.player.rect.y)
+            ):
+                self.lives -= 1
+                self.hit_cooldown = HIT_INVINCIBILITY_FRAMES
+                self.obstacles.remove(ob)
+                if self.lives <= 0:
+                    self.state = GameState.GAME_OVER
+                break
         
         # Remove off-screen objects
         self.obstacles = [o for o in self.obstacles if not o.off_screen()]
@@ -142,7 +156,7 @@ class Game:
         """Render current game state to screen"""
         from screens import (
             draw_menu, draw_settings, draw_start_screen, draw_game_over,
-            draw_background, draw_ground, draw_ui, draw_level
+            draw_background, draw_ground, draw_ui, draw_level, draw_hearts
         )
         
         if self.state == GameState.MENU:
@@ -176,6 +190,7 @@ class Game:
                 # Draw UI
                 draw_ui(self.screen, self.score, font_ui, WIDTH, HEIGHT)
                 draw_level(self.screen, self.level, font_ui, WIDTH)
+                draw_hearts(self.screen, self.lives)
             
             elif self.state == GameState.START:
                 draw_start_screen(self.screen, self.player, road_img, font_title, font_ui, WIDTH, HEIGHT)
