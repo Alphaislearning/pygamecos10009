@@ -47,6 +47,54 @@ def draw_level(screen, level, font_ui, WIDTH):
     screen.blit(level_txt, (20, 20))
 
 
+def draw_level_select(screen, selected_level, WIDTH, HEIGHT):
+    """Draw stage selection screen."""
+    overlay = pygame.Surface((WIDTH, HEIGHT), pygame.SRCALPHA)
+    overlay.fill((0, 0, 0, 120))
+    screen.blit(overlay, (0, 0))
+
+    title = pygame.font.SysFont("Arial", 38, bold=True).render("SELECT LEVEL", True, (255, 200, 100))
+    hint = pygame.font.SysFont("Arial", 20).render("Use LEFT/RIGHT and press SPACE to confirm", True, (230, 230, 230))
+    screen.blit(title, title.get_rect(center=(WIDTH // 2, 35)))
+    screen.blit(hint, hint.get_rect(center=(WIDTH // 2, 70)))
+
+    card_w = 170
+    card_h = 150
+    gap = 20
+    start_x = (WIDTH - (card_w * 3 + gap * 2)) // 2
+    top_y = 120
+
+    card_data = [
+        (1, "Level 1", "Easy start", (100, 200, 100)),
+        (2, "Level 2", "Faster spawn", (255, 200, 100)),
+        (3, "Level 3", "Hard mode", (255, 100, 100)),
+    ]
+
+    font_title = pygame.font.SysFont("Arial", 26, bold=True)
+    font_body = pygame.font.SysFont("Arial", 18, bold=True)
+
+    for index, (level_id, label, desc, accent) in enumerate(card_data):
+        x = start_x + index * (card_w + gap)
+        selected = level_id == selected_level
+        rect = pygame.Rect(x, top_y, card_w, card_h)
+        bg_color = (255, 245, 225) if selected else (245, 245, 245)
+        border_color = accent if selected else (140, 140, 140)
+
+        pygame.draw.rect(screen, bg_color, rect, border_radius=16)
+        pygame.draw.rect(screen, border_color, rect, 4, border_radius=16)
+
+        label_txt = font_title.render(label, True, border_color)
+        desc_txt = font_body.render(desc, True, (70, 75, 95))
+        press_txt = font_body.render("Press SPACE", True, (90, 90, 90))
+
+        screen.blit(label_txt, label_txt.get_rect(center=(rect.centerx, rect.y + 40)))
+        screen.blit(desc_txt, desc_txt.get_rect(center=(rect.centerx, rect.y + 78)))
+        screen.blit(press_txt, press_txt.get_rect(center=(rect.centerx, rect.y + 112)))
+
+        if selected:
+            pygame.draw.rect(screen, accent, rect.inflate(10, 10), 2, border_radius=18)
+
+
 def _draw_pixel_heart(screen, x, y, scale, filled):
     """Draw a pixel-style heart similar to the provided reference image."""
     heart_map = [
@@ -117,8 +165,8 @@ def draw_menu(screen, ui_state, bg_img, road_img, player, WIDTH, HEIGHT):
 
     # Menu items
     font_menu = pygame.font.SysFont("Arial", 30, bold=True)
-    items = ["PLAY", "SETTINGS", "QUIT"]
-    colors = [(70, 75, 95), (70, 75, 95), (70, 75, 95)]
+    items = ["PLAY", "SELECT LEVEL", "SETTINGS", "QUIT"]
+    colors = [(70, 75, 95), (70, 75, 95), (70, 75, 95), (70, 75, 95)]
     colors[ui_state["menu_selected"]] = (255, 200, 100)  # Highlight selected
 
     for i, item in enumerate(items):
@@ -130,6 +178,12 @@ def draw_menu(screen, ui_state, bg_img, road_img, player, WIDTH, HEIGHT):
         if i == ui_state["menu_selected"]:
             rect = pygame.Rect(WIDTH//2 - 100, y - 25, 200, 50)
             pygame.draw.rect(screen, (255, 200, 100), rect, 3, border_radius=10)
+
+    selected_level = ui_state.get("selected_level", 1)
+    level_hint = pygame.font.SysFont("Arial", 20, bold=True).render(
+        f"Selected Level: {selected_level}", True, (255, 255, 255)
+    )
+    screen.blit(level_hint, level_hint.get_rect(center=(WIDTH // 2, HEIGHT - 36)))
 
 
 def draw_settings(screen, ui_state, settings, bg_img, WIDTH, HEIGHT):
@@ -174,9 +228,8 @@ def draw_settings(screen, ui_state, settings, bg_img, WIDTH, HEIGHT):
     screen.blit(back_txt, (30, HEIGHT - 50))
 
 
-def draw_start_screen(screen, player, road_img, font_title, font_ui, WIDTH, HEIGHT):
+def draw_start_screen(screen, player, road_img, font_title, font_ui, WIDTH, HEIGHT, level):
     """Draw pre-game start screen"""
-    from settings import GROUND_Y
     y = HEIGHT - road_img.get_height()
     screen.blit(road_img, (0, y))
     player.draw(screen)
@@ -188,10 +241,12 @@ def draw_start_screen(screen, player, road_img, font_title, font_ui, WIDTH, HEIG
     t1 = font_title.render("Dreamy Runner", True, (70, 75, 95))
     t2 = font_ui.render("Press SPACE to Start", True, (120, 130, 160))
     t3 = font_ui.render("(ESC for Menu)", True, (100, 120, 150))
+    t4 = font_ui.render(f"Current Stage: Level {level}", True, (255, 140, 120))
 
     screen.blit(t1, t1.get_rect(center=(WIDTH//2, HEIGHT//2 - 40)))
     screen.blit(t2, t2.get_rect(center=(WIDTH//2, HEIGHT//2 + 20)))
     screen.blit(t3, t3.get_rect(center=(WIDTH//2, HEIGHT//2 + 60)))
+    screen.blit(t4, t4.get_rect(center=(WIDTH//2, HEIGHT//2 - 90)))
 
 
 def draw_game_over(screen, player, road_img, font_title, font_ui, score, WIDTH, HEIGHT):

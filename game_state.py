@@ -1,6 +1,7 @@
 class GameState:
     MENU = 0
-    SETTINGS = 1
-    START = 2
-    RUNNING = 3
-    GAME_OVER = 4
+    LEVEL_SELECT = 1
+    SETTINGS = 2
+    START = 3
+    RUNNING = 4
+    GAME_OVER = 5

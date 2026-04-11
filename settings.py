@@ -15,28 +15,24 @@ SPEED_INCREASE = 0.002
 START_LIVES = 3
 HIT_INVINCIBILITY_FRAMES = 30
 
-# Level settings
-LEVEL_THRESHOLDS = {
-    1: 0,      # Level 1: 0+ score
-    2: 100,    # Level 2: 100+ score
-    3: 300     # Level 3: 300+ score
-}
-
-# Difficulty multipliers by level
-LEVEL_MULTIPLIERS = {
+# Level settings by stage selection
+LEVEL_CONFIGS = {
     1: {
+        "name": "Level 1",
         "speed_increase": 1.0,
-        "spawn_rate": 60,  # Lower = faster
-        "obstacle_colors": [(160, 50, 50)]
+        "spawn_rate": 60,
+        "score_multiplier": 1.0,
     },
     2: {
+        "name": "Level 2",
         "speed_increase": 1.3,
         "spawn_rate": 45,
-        "obstacle_colors": [(200, 80, 80)]
+        "score_multiplier": 1.2,
     },
     3: {
+        "name": "Level 3",
         "speed_increase": 1.6,
         "spawn_rate": 30,
-        "obstacle_colors": [(255, 100, 100)]
-    }
+        "score_multiplier": 1.4,
+    },
 }
