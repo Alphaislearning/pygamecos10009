@@ -21,9 +21,11 @@ class Game:
         self.spawn_timer = 0
         self.score = 0
         self.speed = SPEED_START
-        self.level = 1  # Current level
+        self.selected_level = 1
+        self.level = 1  # Current stage
         self.lives = START_LIVES
         self.hit_cooldown = 0
+        self.player_name = ""
         
         # Scrolling backgrounds
         self.mountain_x = 0
@@ -36,7 +38,8 @@ class Game:
         }
         
         self.ui_state = {
-            "menu_selected": 0,  # 0: Play, 1: Settings, 2: Quit
+            "menu_selected": 0,  # 0: Play, 1: Select Level, 2: Settings, 3: Quit
+            "selected_level": 1,
             "settings_selected": 0  # 0: Volume, 1: Difficulty
         }
         
@@ -45,21 +48,6 @@ class Game:
             "duck": False
         }
     
-    def get_current_level(self):
-        """Determine current level based on score"""
-        if self.score >= LEVEL_THRESHOLDS[3]:
-            return 3
-        elif self.score >= LEVEL_THRESHOLDS[2]:
-            return 2
-        else:
-            return 1
-    
-    def update_level(self):
-        """Update level based on score"""
-        new_level = self.get_current_level()
-        if new_level != self.level:
-            self.level = new_level
-    
     def reset_game(self):
         """Reset game for new play session"""
         self.obstacles = []
@@ -67,7 +55,7 @@ class Game:
         self.score = 0
         self.speed = SPEED_START
         self.spawn_timer = 0
-        self.level = 1
+        self.level = self.selected_level
         self.lives = START_LIVES
         self.hit_cooldown = 0
         self.player.reset()
@@ -95,15 +83,12 @@ class Game:
         if self.state != GameState.RUNNING:
             return
         
-        # Get level multiplier
-        level_mult = LEVEL_MULTIPLIERS[self.level]
+        # Get stage configuration
+        level_mult = LEVEL_CONFIGS[self.level]
         
-        # Speed increase with level multiplier
+        # Speed increase with stage multiplier
         self.speed += SPEED_INCREASE * level_mult["speed_increase"]
-        self.score += 0.1
-        
-        # Update level
-        self.update_level()
+        self.score += 0.1 * level_mult["score_multiplier"]
 
         if self.hit_cooldown > 0:
             self.hit_cooldown -= 1
@@ -117,7 +102,7 @@ class Game:
         self.game_input["jump"] = False
         self.game_input["duck"] = False
         
-        # Spawn obstacles with level-based rate
+        # Spawn obstacles with stage-based rate
         spawn_rate = level_mult["spawn_rate"]
         self.spawn_timer += 1
         if self.spawn_timer > spawn_rate:
@@ -156,11 +141,14 @@ class Game:
         """Render current game state to screen"""
         from screens import (
             draw_menu, draw_settings, draw_start_screen, draw_game_over,
-            draw_background, draw_ground, draw_ui, draw_level, draw_hearts
+            draw_level_select, draw_background, draw_ground, draw_ui, draw_level, draw_hearts
         )
         
         if self.state == GameState.MENU:
             draw_menu(self.screen, self.ui_state, bg_img, road_img, self.player, WIDTH, HEIGHT)
+
+        elif self.state == GameState.LEVEL_SELECT:
+            draw_level_select(self.screen, self.selected_level, WIDTH, HEIGHT)
         
         elif self.state == GameState.SETTINGS:
             draw_settings(self.screen, self.ui_state, self.settings, bg_img, WIDTH, HEIGHT)
@@ -186,6 +174,14 @@ class Game:
                 
                 # Draw player
                 self.player.draw(self.screen)
+
+                if self.player_name:
+                    name_surface = font_ui.render(self.player_name, True, (255, 255, 255))
+                    name_box = pygame.Rect(0, 0, name_surface.get_width() + 16, name_surface.get_height() + 8)
+                    name_box.midbottom = (self.player.rect.centerx, self.player.rect.top - 8)
+                    pygame.draw.rect(self.screen, (0, 0, 0), name_box, border_radius=8)
+                    pygame.draw.rect(self.screen, (255, 200, 100), name_box, 2, border_radius=8)
+                    self.screen.blit(name_surface, name_surface.get_rect(center=name_box.center))
                 
                 # Draw UI
                 draw_ui(self.screen, self.score, font_ui, WIDTH, HEIGHT)
@@ -193,7 +189,17 @@ class Game:
                 draw_hearts(self.screen, self.lives)
             
             elif self.state == GameState.START:
-                draw_start_screen(self.screen, self.player, road_img, font_title, font_ui, WIDTH, HEIGHT)
+                draw_start_screen(
+                    self.screen,
+                    self.player,
+                    road_img,
+                    font_title,
+                    font_ui,
+                    WIDTH,
+                    HEIGHT,
+                    self.level,
+                    self.player_name,
+                )
             
             elif self.state == GameState.GAME_OVER:
                 draw_game_over(self.screen, self.player, road_img, font_title, font_ui, self.score, WIDTH, HEIGHT)

@@ -68,11 +68,11 @@ def main():
         
         # Handle events
         for event in pygame.event.get():
-            new_state, running, game.game_input = process_events(
-                event, game.state, game.ui_state, game.settings, game.game_input
-            )
+            new_state, running, game.game_input = process_events(event, game)
             
             # Handle state transitions
+            if new_state == GameState.START and game.state in [GameState.MENU, GameState.LEVEL_SELECT]:
+                game.level = game.selected_level
             if new_state == GameState.RUNNING and game.state == GameState.START:
                 game.reset_game()
             elif new_state == "RETRY" or (new_state == GameState.START and game.state == GameState.GAME_OVER):
