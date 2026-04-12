@@ -184,7 +184,7 @@ class Game:
                 draw_start_screen(
                     self.screen,
                     self.player,
-                    road_img,
+                    bg_img,
                     font_title,
                     font_ui,
                     WIDTH,
