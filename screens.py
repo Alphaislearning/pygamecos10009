@@ -4,14 +4,8 @@ from settings import WIDTH, HEIGHT, GROUND_Y
 
 
 def draw_background(screen, bg_img, mountain_img, road_img, mountain_x):
-    """Draw background with parallax scrolling - position updated in game.py"""
+    """Draw the stage background. Each level gets its own background image."""
     screen.blit(bg_img, (0, 0))
-
-    w = mountain_img.get_width()
-    y = HEIGHT - road_img.get_height() - 100
-
-    screen.blit(mountain_img, (mountain_x, y))
-    screen.blit(mountain_img, (mountain_x + w, y))
 
 
 def draw_ground(screen, road_img, road_x):
@@ -230,8 +224,7 @@ def draw_settings(screen, ui_state, settings, bg_img, WIDTH, HEIGHT):
 
 def draw_start_screen(screen, player, road_img, font_title, font_ui, WIDTH, HEIGHT, level, player_name=""):
     """Draw pre-game start screen"""
-    y = HEIGHT - road_img.get_height()
-    screen.blit(road_img, (0, y))
+    screen.blit(road_img, (0, 0))
     player.draw(screen)
 
     overlay = pygame.Surface((WIDTH, HEIGHT), pygame.SRCALPHA)
@@ -253,8 +246,7 @@ def draw_start_screen(screen, player, road_img, font_title, font_ui, WIDTH, HEIG
 
 def draw_game_over(screen, player, road_img, font_title, font_ui, score, WIDTH, HEIGHT):
     """Draw game over screen"""
-    y = HEIGHT - road_img.get_height()
-    screen.blit(road_img, (0, y))
+    screen.blit(road_img, (0, 0))
     player.draw(screen)
 
     overlay = pygame.Surface((WIDTH, HEIGHT), pygame.SRCALPHA)
