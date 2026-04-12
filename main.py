@@ -2,7 +2,7 @@
 Dreamy Runner - Main Entry Point
 """
 import pygame
-from settings import WIDTH, HEIGHT, FPS
+from settings import WIDTH, HEIGHT, FPS, MUSIC_VOLUME
 from game import Game
 from events import process_events
 from game_state import GameState
@@ -46,6 +46,10 @@ def main():
     # Initialize pygame
     pygame.init()
     pygame.font.init()
+    pygame.mixer.init()
+    pygame.mixer.music.load("assets/music/music.mp3")
+    pygame.mixer.music.set_volume(MUSIC_VOLUME)
+    pygame.mixer.music.play(-1)
     
     # Setup screen and clock
     screen = pygame.display.set_mode((WIDTH, HEIGHT))
@@ -100,6 +104,8 @@ def main():
                 new_state = GameState.START
             
             game.state = new_state
+
+        pygame.mixer.music.set_volume(game.settings["volume"] / 100)
         
         # Update game logic
         game.update_game()
@@ -113,6 +119,7 @@ def main():
         pygame.display.update()
     
     # Cleanup
+    pygame.mixer.music.stop()
     pygame.quit()
 
 

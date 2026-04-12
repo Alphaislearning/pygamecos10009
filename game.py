@@ -34,7 +34,7 @@ class Game:
         self.road_x = 0
 
         self.settings = {
-            "volume": 50,
+            "volume": int(MUSIC_VOLUME * 100),
             "difficulty": 1,
         }
 

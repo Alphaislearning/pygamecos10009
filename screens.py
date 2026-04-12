@@ -335,21 +335,47 @@ def draw_settings(screen, ui_state, settings, bg_img, WIDTH, HEIGHT):
     panel = pygame.Rect(150, 86, 500, 220)
     _draw_pixel_panel(screen, panel, fill=(111, 54, 39), border=UI_COLORS["gold"])
 
-    font_menu = _font(22)
+    font_menu = _font(18)
     font_info = _font(16)
 
     vol_color = UI_COLORS["gold"] if ui_state["settings_selected"] == 0 else UI_COLORS["muted"]
     diff_color = UI_COLORS["gold"] if ui_state["settings_selected"] == 1 else UI_COLORS["muted"]
 
-    _draw_text(screen, "VOLUME", font_menu, vol_color, (panel.x + 36, panel.y + 42))
-    bar_rect = pygame.Rect(panel.x + 170, panel.y + 34, 220, 26)
+    label_w = 140
+    label_x = panel.x + 26
+    control_x = panel.x + 182
+
+    volume_row = pygame.Rect(panel.x + 22, panel.y + 42, panel.width - 44, 42)
+    difficulty_row = pygame.Rect(panel.x + 22, panel.y + 114, panel.width - 44, 42)
+    pygame.draw.rect(screen, (121, 63, 46), volume_row)
+    pygame.draw.rect(screen, (121, 63, 46), difficulty_row)
+
+    volume_label_rect = pygame.Rect(label_x, volume_row.y + 4, label_w, 28)
+    difficulty_label_rect = pygame.Rect(label_x, difficulty_row.y + 4, label_w, 28)
+    _draw_pixel_panel(
+        screen,
+        volume_label_rect,
+        fill=(84, 40, 30),
+        border=vol_color if ui_state["settings_selected"] == 0 else UI_COLORS["panel_light"],
+        shadow_offset=3,
+    )
+    _draw_pixel_panel(
+        screen,
+        difficulty_label_rect,
+        fill=(84, 40, 30),
+        border=diff_color if ui_state["settings_selected"] == 1 else UI_COLORS["panel_light"],
+        shadow_offset=3,
+    )
+
+    _draw_text(screen, "VOLUME", font_menu, UI_COLORS["white"], volume_label_rect.center, center=True, shadow=False)
+    bar_rect = pygame.Rect(control_x, volume_row.y + 4, 220, 26)
     _draw_pixel_panel(screen, bar_rect, fill=(84, 40, 30), border=vol_color if ui_state["settings_selected"] == 0 else UI_COLORS["panel_light"], shadow_offset=3)
     fill_rect = pygame.Rect(bar_rect.x + 6, bar_rect.y + 6, int((settings["volume"] / 100) * (bar_rect.width - 12)), bar_rect.height - 12)
     pygame.draw.rect(screen, UI_COLORS["peach"], fill_rect)
-    _draw_text(screen, f"{settings['volume']}%", font_info, UI_COLORS["white"], (bar_rect.right + 20, bar_rect.y + 4))
+    _draw_text(screen, f"{settings['volume']}%", font_info, UI_COLORS["white"], (bar_rect.right + 18, volume_row.y + 10), shadow=False)
 
-    _draw_text(screen, "DIFFICULTY", font_menu, diff_color, (panel.x + 36, panel.y + 116))
-    difficulty_rect = pygame.Rect(panel.x + 220, panel.y + 108, 150, 32)
+    _draw_text(screen, "DIFFICULTY", font_menu, UI_COLORS["white"], difficulty_label_rect.center, center=True, shadow=False)
+    difficulty_rect = pygame.Rect(control_x + 60, difficulty_row.y + 5, 150, 32)
     _draw_pixel_panel(screen, difficulty_rect, fill=(84, 40, 30), border=diff_color if ui_state["settings_selected"] == 1 else UI_COLORS["panel_light"], shadow_offset=3)
     difficulties = ["EASY", "NORMAL", "HARD"]
     _draw_text(screen, difficulties[settings["difficulty"] - 1], _font(18), UI_COLORS["white"], difficulty_rect.center, center=True)
