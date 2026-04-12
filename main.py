@@ -25,6 +25,22 @@ def load_img(path, scale=None):
     return img
 
 
+def load_bg_cover(path, size):
+    """Load a background image and scale it to cover the target size without distortion."""
+    img = pygame.image.load(path).convert()
+    source_width, source_height = img.get_size()
+    target_width, target_height = size
+
+    scale = max(target_width / source_width, target_height / source_height)
+    scaled_width = int(source_width * scale)
+    scaled_height = int(source_height * scale)
+    img = pygame.transform.smoothscale(img, (scaled_width, scaled_height))
+
+    crop_x = (scaled_width - target_width) // 2
+    crop_y = (scaled_height - target_height) // 2
+    return img.subsurface((crop_x, crop_y, target_width, target_height)).copy()
+
+
 def main():
     """Main game loop"""
     # Initialize pygame
@@ -36,7 +52,11 @@ def main():
     pygame.display.set_caption("Swinburn Runner")
     
     # Load assets
-    bg_img = load_img("assets/background.png", (WIDTH, HEIGHT))
+    bg_imgs = {
+        1: load_bg_cover("assets/background.png", (WIDTH, HEIGHT)),
+        2: load_bg_cover("assets/background_lv2.png", (WIDTH, HEIGHT)),
+        3: load_bg_cover("assets/background_lv3.png", (WIDTH, HEIGHT)),
+    }
     mountain_img = load_img("assets/mountain.png")
     road_img = load_img("assets/road.png")
     
@@ -86,7 +106,8 @@ def main():
         game.update_scrolling_backgrounds(game.speed)
         
         # Render everything
-        game.render_game(font_title, font_ui, bg_img, mountain_img, road_img)
+        current_bg = bg_imgs.get(game.level, bg_imgs[1])
+        game.render_game(font_title, font_ui, current_bg, mountain_img, road_img)
         
         # Update display
         pygame.display.update()

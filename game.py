@@ -141,7 +141,7 @@ class Game:
         """Render current game state to screen"""
         from screens import (
             draw_menu, draw_settings, draw_start_screen, draw_game_over,
-            draw_level_select, draw_background, draw_ground, draw_ui, draw_level, draw_hearts
+            draw_level_select, draw_ground, draw_ui, draw_level, draw_hearts
         )
         
         if self.state == GameState.MENU:
@@ -154,14 +154,9 @@ class Game:
             draw_settings(self.screen, self.ui_state, self.settings, bg_img, WIDTH, HEIGHT)
         
         else:
-            # Draw background for non-menu states
-            if self.state != GameState.MENU and self.state != GameState.SETTINGS:
-                draw_background(
-                    self.screen, bg_img, mountain_img, road_img, self.mountain_x
-                )
-            
             if self.state == GameState.RUNNING:
                 # Draw game elements
+                self.screen.blit(bg_img, (0, 0))
                 draw_ground(self.screen, road_img, self.road_x)
                 
                 # Draw coins
@@ -192,7 +187,7 @@ class Game:
                 draw_start_screen(
                     self.screen,
                     self.player,
-                    road_img,
+                    bg_img,
                     font_title,
                     font_ui,
                     WIDTH,
@@ -202,7 +197,7 @@ class Game:
                 )
             
             elif self.state == GameState.GAME_OVER:
-                draw_game_over(self.screen, self.player, road_img, font_title, font_ui, self.score, WIDTH, HEIGHT)
+                draw_game_over(self.screen, self.player, bg_img, font_title, font_ui, self.score, WIDTH, HEIGHT)
     
     def tick(self, fps):
         """Advance game by one frame"""
